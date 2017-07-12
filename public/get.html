@@ -9,9 +9,6 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script>
         $(document).ready(function () {
-            /* setInterval(function () {
-                 $("#rated").empty().html($("#rating").val());
-             }, 4);*/
             $("#search").click(function () {
                 var mname = add($("#mname").val());
                 var url = 'http://www.omdbapi.com/?apikey=ec6483bd&plot=full&t=' + mname;

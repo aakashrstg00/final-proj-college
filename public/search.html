@@ -15,7 +15,6 @@
             $("#search").click(function () {
                 var mname = add($("#mname").val());
                 var url = 'http://www.omdbapi.com/?apikey=ec6483bd&s=' + mname;
-                console.log("called ", url);
                 $.get(url).done(function (data) {
                     document.getElementById("searchR").style.display = "block";
                     var str = "";
@@ -25,8 +24,8 @@
                     }
                     else {
                         //console.log(data);
-                        for (var i = 0; i < data.Search.length; i++) {
-                            str += "<div class=\"outline\" style=\"display:inline-flex; width:90%;\"> <img src=\"" + data.Search[i].Poster + "\" alt=\"\"> <div style=\"padding:1rem;\"><div name=\"title\"><h1>" + data.Search[i].Title + "</h1></div><div name=\"year\"><h2>" + data.Search[i].Year + " </h2></div><div name=\"type\">" + firstCap(data.Search[i].Type) + "</div> </div> </div>";
+                        for (var i = 0; i < Math.min(data.Search.length, 8); i++) {
+                            str += "<div onclick=\"getmovie('" + data.Search[i].Title + "')\" class=\"outline\" style=\"display:inline-flex; width:90%;\"> <img src=\"" + data.Search[i].Poster + "\" alt=\"\"> <div style=\"padding:1rem;\"><div name=\"title\"><h1>" + data.Search[i].Title + "</h1></div><div name=\"year\"><h2>" + data.Search[i].Year + " </h2></div><div name=\"type\">" + firstCap(data.Search[i].Type) + "</div> </div> </div>";
                             str += "<br><br>";
                         }
                         console.log(data.Response);
@@ -58,6 +57,43 @@
 
         function firstCap(string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+
+        function getmovie(name) {
+            console.log("clicked ", name);
+            var mname = add(name);
+            var url = 'http://www.omdbapi.com/?apikey=ec6483bd&plot=full&t=' + mname;
+            console.log("called ", url);
+            $.get(url).done(function (data) {
+                document.getElementById("searchR").style.display = "block";
+                var str = "";
+                if (data.Response === 'False') {
+                    console.log(data.Response);
+                    str += "<h1>Item not found</h1>";
+                }
+                else {
+                    /*for (var key in data) { str += "[" + key + "] : " + data[key] + "
+                    <br>"; }*/
+                    str += "<button onclick=\"goback()\">back</button>";
+                    str += "<h1 style=\"text-align:center\">" + data.Title + "</h1><br>";
+                    str += "<h3 style=\"text-align:center\">" + data.Runtime + "</h3><br>";
+                    str += "<img src=\"" + data.Poster + "\" class=\"center\" alt=\"Poster not available\"><br>";
+                    str += "<h3 style=\"text-align:center\"> Rated : " + data.Rated + "</h3><br>";
+                    str += "<h3 style=\"text-align:center\"> Director - " + data.Director + "</h3><br>";
+                    str += "<h4 style=\"text-align:center\"> Actors - " + data.Actors + "</h4><br>";
+                    str += "<h4 style=\"text-align:center\"> Awards - " + data.Awards + "</h4><br>";
+                    str += data.Plot;
+                    console.log(data.Response);
+                }
+                $("#searchR").empty().html(str);
+                console.log(data);
+            }).fail(function (error) {
+                console.log("ajax result", error);
+            });
+        }
+
+        function goback() {
+            $("#search").click();
         }
     </script>
     <style>

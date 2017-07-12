@@ -80,7 +80,7 @@ router.post('/register', function (req, res) {
                     }
                 }
                 else {
-                    msg = 'Successful User Insertion';
+                    msg = 'Registration Successful!';
                 }
                 res.send(msg);
             });
@@ -94,4 +94,105 @@ router.post('/register', function (req, res) {
         res.send("Enter credentials properly!!");
     }
 });
+router.get('/getmovie', (req, res) => {
+    var title = req.query.title;
+    title = add(title);
+    var url = 'http://www.omdbapi.com/?apikey=ec6483bd&plot=full&t=' + title;
+    var request = require('request');
+    var reqs = request(url, function (error, response, body) {
+        if (!error && response.statusCode == 200) {
+            res.render('movie', JSON.parse(body));
+        }
+    })
+});
+router.post('/rate', (req, res) => {
+    var rating = {
+        rating: req.body.rating
+        , movieid: req.body.movieid
+        , userid: 23338
+    };
+    console.dir(rating);
+    if (rating.rating) {
+        var addRating = 'INSERT INTO ur VALUES("' + rating.userid + '","' + rating.movieid + '","' + rating.rating + '");';
+        var mysql = require('mysql');
+        var connection = mysql.createConnection({
+            host: 'localhost'
+            , user: 'root'
+            , password: 'aakash'
+            , database: 'imdb2'
+        });
+        try {
+            connection.query(addRating, function (err, data) {
+                var msg = '';
+                if (err) {
+                    msg = 'Unable to add your rating to database currently! Sorry for inconvinience.';
+                }
+                else {
+                    msg = 'Rating Submitted!';
+                }
+                res.send(msg);
+            });
+        }
+        catch (err) {
+            res.send("Error Occured!");
+            console.log("Error Occured!");
+        }
+    }
+    else {
+        res.send("Enter a rating!");
+    }
+});
+/*
+
+router.post('/rate', (req, res) => {
+    var rating = {
+        rating: req.body.rating
+        , movieid: req.body.movieid
+        , userid: req.session.userid
+    }
+    console.dir(rating);
+    if (rating.rating) {
+    if (rating.userid) {
+        var addRating = 'INSERT INTO userrating VALUES("' + rating.userid + '","' + rating.movieid + '","' + rating.rating + '");';
+        var mysql = require('mysql');
+        var connection = mysql.createConnection({
+            host: 'localhost'
+            , user: 'root'
+            , password: 'aakash'
+            , database: 'imdb2'
+        });
+        try {
+            connection.query(addRating, function (err, data) {
+                var msg = '';
+                if (err) {
+                    msg = 'Unable to add your rating to database currently! Sorry for inconvinience.';
+                }
+                else {
+                    msg = 'Rating Submitted!';
+                }
+                res.send(msg);
+            });
+        }
+        catch (err) {
+            res.send("Error Occured!");
+            console.log("Error Occured!");
+        }
+    }
+    else {
+        res.redirect('/login');
+    }
+}
+else {
+    res.send("Enter a rating!");
+}
+});
+*/
+function add(mname) {
+    for (i = 0; i < mname.length; i++) {
+        if (mname[i] == ' ') {
+            mname = mname.replace(' ', '+');
+        }
+    }
+    return mname;
+}
 module.exports = router;
